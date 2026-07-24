@@ -3,11 +3,11 @@ import { JWT } from 'next-auth/jwt';
 import GithubProvider from 'next-auth/providers/github';
 import { prisma } from '@/lib/prisma';
 
-// Extend NextAuth module types so TypeScript recognizes custom fields
 declare module 'next-auth' {
   interface Session {
     accessToken?: string;
     user?: {
+      id?: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -25,11 +25,11 @@ declare module 'next-auth/jwt' {
   }
 }
 
-// GitHub Profile Type
 interface GitHubProfile extends Profile {
   id: number;
   login: string;
   avatar_url?: string;
+  email?: string;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -57,22 +57,31 @@ export const authOptions: NextAuthOptions = {
       if (!account || !profile) return false;
       const ghProfile = profile as GitHubProfile;
 
-      await prisma.user.upsert({
-        where: { githubId: ghProfile.id.toString() },
-        update: {
-          name: user.name || ghProfile.login,
-          email: user.email,
-          avatar: user.image,
-        },
-        create: {
-          githubId: ghProfile.id.toString(),
-          name: user.name || ghProfile.login,
-          email: user.email,
-          avatar: user.image,
-        },
-      });
+      const githubId = ghProfile.id.toString();
+      const name = user.name || ghProfile.login || 'GitHub Developer';
+      const email = user.email || ghProfile.email || null;
+      const avatar = user.image || ghProfile.avatar_url || null;
 
-      return true;
+      try {
+        await prisma.user.upsert({
+          where: { githubId },
+          update: {
+            name,
+            email,
+            avatar,
+          },
+          create: {
+            githubId,
+            name,
+            email,
+            avatar,
+          },
+        });
+        return true;
+      } catch (error) {
+        console.error('Prisma User Upsert Error:', error);
+        return false;
+      }
     },
     async jwt({
       token,
@@ -110,6 +119,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/',
+    error: '/', // Redirect back to home on OAuth failure instead of crashing page
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
