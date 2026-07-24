@@ -4,13 +4,13 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
-import { GitBranch, ShieldCheck, User as UserIcon, LogOut } from 'lucide-react';
+import RepoSelector from '@/components/RepoSelector';
+import { GitBranch, User as UserIcon, LogOut } from 'lucide-react';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Redirect unauthenticated users back home
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
@@ -68,29 +68,18 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Repositories Setup Placeholder (Phase 3) */}
+        {/* Repositories Section */}
         <div className="mt-10">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <GitBranch className="w-5 h-5 text-emerald-400" /> Connected Repositories
-              </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Select repositories to enable webhook telemetry and root-cause AI analysis.
-              </p>
-            </div>
-          </div>
-
-          {/* Placeholder card */}
-          <div className="border border-dashed border-slate-800 rounded-2xl p-12 text-center bg-slate-900/20">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-4">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="text-sm font-semibold text-white">Auth completed successfully!</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-              Your OAuth session and access token are verified. We are ready for **Phase 3: Repository Connection**.
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <GitBranch className="w-5 h-5 text-emerald-400" /> Connect Repositories
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Select repositories from your GitHub account to enable real-time telemetry and AI analysis.
             </p>
           </div>
+
+          <RepoSelector />
         </div>
       </main>
     </div>
