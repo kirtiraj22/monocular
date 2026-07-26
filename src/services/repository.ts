@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import type { Repository, Deployment, Commit, WorkflowRun } from '@/generated/prisma';
+import type { Repository, Deployment, Commit, WorkflowRun } from '@/generated/prisma/client';
 
 export interface RepositoryWithRelations extends Repository {
   deployments: (Deployment & {

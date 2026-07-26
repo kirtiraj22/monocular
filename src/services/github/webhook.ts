@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import type { Repository } from '@/generated/prisma';
+import type { Repository } from '@/generated/prisma/client';
 
 // GitHub Payload Interfaces
 interface GitHubCommit {
