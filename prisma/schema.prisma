@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
   id           String       @id @default(cuid())
   githubId     String       @unique
@@ -83,7 +82,13 @@ model AIReport {
   summary        String
   rootCause      String
   recommendation String
+
+  traceId        String?
+  toolCalls      Json?
+  model          String?
+
   createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @default(now()) @updatedAt
 }
 
 model TraceSnapshot {
