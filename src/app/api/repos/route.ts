@@ -36,7 +36,6 @@ export async function GET() {
 
     const githubRepos: GitHubApiRepo[] = await res.json();
 
-    // Fetch user with a quick catch block so database timeouts don't block GitHub repos
     let connectedRepoIds = new Set<string>();
     try {
       const dbUser = await prisma.user.findUnique({
@@ -62,7 +61,7 @@ export async function GET() {
     }));
 
     return NextResponse.json({ repos });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching GitHub repos:', error);
     return NextResponse.json({ error: 'Failed to fetch repositories' }, { status: 500 });
   }
@@ -76,7 +75,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { repo } = await req.json();
+    const { repo, action } = await req.json();
 
     if (!repo || !repo.id || !repo.name || !repo.owner) {
       return NextResponse.json({ error: 'Invalid repository payload' }, { status: 400 });
@@ -87,18 +86,30 @@ export async function POST(req: Request) {
     });
 
     if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
     }
 
+    // Handle Disconnect action if requested
+    if (action === 'disconnect') {
+      await prisma.repository.deleteMany({
+        where: {
+          githubRepoId: repo.id.toString(),
+          userId: dbUser.id,
+        },
+      });
+      return NextResponse.json({ success: true, connected: false });
+    }
+
+    // Connect / Upsert repository
     const savedRepo = await prisma.repository.upsert({
-      where: { githubRepoId: repo.id },
+      where: { githubRepoId: repo.id.toString() },
       update: {
         userId: dbUser.id,
         defaultBranch: repo.defaultBranch || 'main',
         isPrivate: repo.isPrivate ?? false,
       },
       create: {
-        githubRepoId: repo.id,
+        githubRepoId: repo.id.toString(),
         owner: repo.owner,
         name: repo.name,
         defaultBranch: repo.defaultBranch || 'main',
@@ -107,9 +118,9 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ repository: savedRepo });
-  } catch (error) {
+    return NextResponse.json({ repository: savedRepo, connected: true });
+  } catch (error: unknown) {
     console.error('Error connecting repo:', error);
-    return NextResponse.json({ error: 'Failed to connect repository' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update repository connection' }, { status: 500 });
   }
 }
