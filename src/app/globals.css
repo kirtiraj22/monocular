@@ -1,8 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f8fc;
+  --foreground: #0f172a;
+
+  /* Brand */
+  --brand-50: #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(148, 163, 184, 0.22);
+  --glass-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -12px rgba(15, 23, 42, 0.12);
 }
 
 @theme inline {
@@ -10,17 +23,157 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.16);
+  color: #1d4ed8;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.4);
+  background-clip: padding-box;
+}
+
+/* ---------- Reusable surface primitives ---------- */
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-panel-strong {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03), 0 8px 24px -8px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* Hero sky gradient, evoking a calm layered atmosphere */
+.hero-sky {
+  background:
+    radial-gradient(1100px 500px at 15% -10%, rgba(191, 219, 254, 0.9), transparent 60%),
+    radial-gradient(900px 500px at 85% 0%, rgba(147, 197, 253, 0.55), transparent 55%),
+    linear-gradient(180deg, #0b3fa8 0%, #1d5fd6 22%, #3d7ff0 46%, #8fbcf7 72%, #eaf3ff 100%);
+  position: relative;
+}
+
+.hero-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.12;
+  mask-image: linear-gradient(180deg, black, transparent 85%);
+  pointer-events: none;
+}
+
+.hero-glow {
+  background: radial-gradient(600px 300px at 50% 0%, rgba(255, 255, 255, 0.35), transparent 70%);
+}
+
+/* Soft grid backdrop used behind app dashboard shells. Kept visibly blue-tinted
+   (not flat white) so interior pages still feel like part of the same product
+   as the marketing hero. */
+.app-shell-bg {
+  background:
+    radial-gradient(1200px 620px at 8% -14%, rgba(59, 130, 246, 0.16), transparent 60%),
+    radial-gradient(1000px 560px at 100% -8%, rgba(56, 189, 248, 0.14), transparent 55%),
+    radial-gradient(900px 500px at 50% 115%, rgba(99, 102, 241, 0.08), transparent 60%),
+    #eef3fb;
+  background-attachment: fixed;
+}
+
+/* Compact version of .hero-sky used at the top of interior app pages
+   (dashboard, repository workspace, deployment detail) so they read as the
+   same product as the marketing site rather than a plain white screen. */
+.hero-band {
+  background:
+    radial-gradient(900px 360px at 12% -20%, rgba(191, 219, 254, 0.8), transparent 60%),
+    radial-gradient(700px 360px at 90% -10%, rgba(147, 197, 253, 0.5), transparent 55%),
+    linear-gradient(180deg, #123f9e 0%, #1d5fd6 35%, #3d7ff0 75%, #5c96f2 100%);
+  position: relative;
+}
+
+.hero-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+  background-size: 400px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
